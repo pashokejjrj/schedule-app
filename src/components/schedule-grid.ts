@@ -142,9 +142,6 @@ export function renderScheduleGrid(): void {
           <span class="day-badge-counter">${dayLessons.length} ${pluralizeLessons(dayLessons.length)}</span>
         </div>
         <div class="day-lessons-list">${body}</div>
-        <div class="day-footer">
-          <button type="button" class="btn btn-sm btn-add-day" data-add-day="${dayInfo.id}">+ Добавить пару</button>
-        </div>
       </section>`);
   });
 
@@ -183,7 +180,7 @@ export function scrollToActiveDay(): void {
 export function initScheduleGrid(handlers: {
   onEditLesson: (uid: string) => void;
   onDeleteLesson: (uid: string) => void;
-  onAddLesson: (day: number) => void;
+  onAddLesson?: (day: number) => void;
 }): void {
   const container = document.getElementById('scheduleGrid');
   if (!container) return;
@@ -201,11 +198,6 @@ export function initScheduleGrid(handlers: {
       const uid = delBtn.getAttribute('data-del-uid');
       if (uid) handlers.onDeleteLesson(uid);
       return;
-    }
-    const addBtn = target.closest('[data-add-day]');
-    if (addBtn) {
-      const day = parseInt(addBtn.getAttribute('data-add-day') || '1', 10);
-      handlers.onAddLesson(day);
     }
   });
 

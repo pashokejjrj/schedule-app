@@ -1,8 +1,7 @@
 import { store } from '../state/store';
 import { exportICS } from '../services/ics-export';
-import { exportJSON, importJSONFile } from '../services/json-transfer';
-import { showConfirmDialog, closeModal } from './modal';
-import { renderPrintSchedule } from './print-view';
+import { importJSONFile } from '../services/json-transfer';
+import { showConfirmDialog } from './modal';
 import { showToast } from './toast';
 
 export function initDataActions(): void {
@@ -16,15 +15,6 @@ export function initDataActions(): void {
       } else if (res.error) {
         showToast(res.error);
       }
-    });
-  }
-
-  const btnExportJson = document.getElementById('btnExportJson');
-  if (btnExportJson) {
-    btnExportJson.addEventListener('click', () => {
-      const state = store.getState();
-      exportJSON(state.lessons, state.settings);
-      showToast('Расписание экспортировано в JSON');
     });
   }
 
@@ -79,15 +69,4 @@ export function initDataActions(): void {
       );
     });
   }
-
-  const btnPrintSchedule = document.getElementById('btnPrintSchedule');
-  if (btnPrintSchedule) {
-    btnPrintSchedule.addEventListener('click', () => {
-      closeModal('modalExportImport');
-      renderPrintSchedule();
-      window.print();
-    });
-  }
-
-  window.addEventListener('beforeprint', renderPrintSchedule);
 }

@@ -1,7 +1,6 @@
 import './styles/tokens.css';
 import './styles/reset.css';
 import './styles/components.css';
-import './styles/print.css';
 
 import type { ViewMode } from './state/store';
 import { THEME_COLORS, WEEKDAYS_ACC } from './domain/types';
@@ -14,7 +13,6 @@ import { openModal, closeModal, initModals, showConfirmDialog } from './componen
 import { updateLiveWidget } from './components/live-widget';
 import { renderWeekStrip } from './components/week-strip';
 import { renderScheduleGrid, initScheduleGrid, scrollToActiveDay } from './components/schedule-grid';
-import { renderPrintSchedule } from './components/print-view';
 import { openLessonModal, initLessonModal, deleteLessonWithUndo } from './components/modal-lesson';
 import { openSettingsModal, initSettingsModal } from './components/modal-settings';
 import { initDataActions } from './components/actions';
@@ -30,8 +28,6 @@ function setText(el: HTMLElement | null, text: string | undefined): void {
 function renderHeader(): void {
   const { settings } = store.getState();
   setText($('headerGroupName'), settings.groupName);
-  setText($('printGroupName'), `Расписание занятий — ${settings.groupName}`);
-  setText($('printGroupSubtitle'), settings.groupSubtitle);
   document.title = `Расписание ${settings.groupName}`;
 }
 
@@ -74,7 +70,6 @@ function renderAll(): void {
   renderViewToggle();
   renderWeekStrip();
   renderScheduleGrid();
-  renderPrintSchedule();
   updateLiveWidget();
 }
 
@@ -125,10 +120,6 @@ function initEventListeners(): void {
         'Вы уверены, что хотите удалить это занятие?',
         () => deleteLessonWithUndo(uid)
       );
-    },
-    onAddLesson: (day) => {
-      const state = store.getState();
-      openLessonModal(null, state.activeWeek, day);
     }
   });
 

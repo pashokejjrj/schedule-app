@@ -37,12 +37,6 @@
 
 <body>
 
-  <!-- Printable Version Header (only visible on print) -->
-  <div class="container print-header" id="printHeader">
-    <h1 id="printGroupName">Расписание занятий</h1>
-    <p id="printGroupSubtitle">Семестр</p>
-  </div>
-
   <!-- Top Navigation (top-nav from DESIGN-claude.md) -->
   <header class="top-nav">
     <div class="container top-nav-inner">
@@ -209,11 +203,6 @@
     <!-- Main Schedule Grid (Days Mon - Sat: feature-card from DESIGN-claude.md) -->
     <div class="schedule-grid" id="scheduleGrid">
       <!-- Days rendered dynamically -->
-    </div>
-
-    <!-- Printable 2-Week Schedule Container (active during print) -->
-    <div class="print-schedule-container" id="printScheduleContainer">
-      <!-- Days for both weeks rendered dynamically for printing -->
     </div>
   </main>
 
@@ -415,34 +404,18 @@
         <div style="background: var(--color-surface-soft); padding: 16px; border-radius: var(--rounded-md); border: 1px solid var(--border-medium);">
           <div style="font-weight: 500; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; color: var(--text-main);">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
-            Резервная копия и обмен (JSON)
+            Импорт из JSON
           </div>
           <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
-            Позволяет старосте собрать всё расписание в один файл и отправить группе для импорта.
+            Позволяет восстановить расписание из файла JSON.
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button class="btn" id="btnExportJson">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-              Экспорт в JSON
-            </button>
             <label class="btn" style="margin: 0; cursor: pointer;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
               Импорт из JSON
               <input type="file" id="fileInputJson" accept=".json" style="display: none;">
             </label>
           </div>
-        </div>
-
-        <!-- Print -->
-        <div style="background: var(--color-surface-soft); padding: 16px; border-radius: var(--rounded-md); border: 1px solid var(--border-medium);">
-          <div style="font-weight: 500; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; color: var(--text-main);">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-            Печать расписания (Ctrl + P)
-          </div>
-          <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
-            Формат для печати на листах А4: скрывает интерфейс, компактно выводит обе недели с разрывом страницы.
-          </div>
-          <button class="btn" id="btnPrintSchedule">Открыть версию для печати</button>
         </div>
       </div>
       <div class="modal-footer">
@@ -465,7 +438,7 @@
         </button>
         <button type="button" class="menu-item" data-menu-action="export">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-          <span class="menu-item-text"><span class="menu-item-title">Экспорт и импорт</span><span class="menu-item-sub">Календарь .ics, резервная копия, печать</span></span>
+          <span class="menu-item-text"><span class="menu-item-title">Экспорт и импорт</span><span class="menu-item-sub">Календарь .ics, импорт JSON</span></span>
         </button>
         <button type="button" class="menu-item" data-menu-action="demo">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
