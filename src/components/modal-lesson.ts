@@ -83,6 +83,7 @@ function renderBellPresets(): void {
 }
 
 export function openLessonModal(uid: string | null = null, defaultWeek: WeekParity | null = null, defaultDay: number | null = null): void {
+  if (!uid) return;
   const form = $('formLesson') as HTMLFormElement | null;
   if (!form) return;
   form.reset();

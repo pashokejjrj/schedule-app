@@ -16,6 +16,7 @@ import { renderScheduleGrid, initScheduleGrid, scrollToActiveDay } from './compo
 import { openLessonModal, initLessonModal, deleteLessonWithUndo } from './components/modal-lesson';
 import { openSettingsModal, initSettingsModal } from './components/modal-settings';
 import { initDataActions } from './components/actions';
+import { parseAndSanitizeJSON } from './services/json-transfer';
 
 function $(id: string): HTMLElement | null {
   return document.getElementById(id);
@@ -121,16 +122,6 @@ function initEventListeners(): void {
         () => deleteLessonWithUndo(uid)
       );
     }
-  });
-
-  $('btnHeaderAddLesson')?.addEventListener('click', () => {
-    const state = store.getState();
-    openLessonModal(null, state.activeWeek, isoWeekday(state.activeDate));
-  });
-
-  $('btnMobileFabAdd')?.addEventListener('click', () => {
-    const state = store.getState();
-    openLessonModal(null, state.activeWeek, isoWeekday(state.activeDate));
   });
 
   $('btnOpenSettings')?.addEventListener('click', openSettingsModal);
@@ -331,9 +322,25 @@ store.subscribe(() => {
   renderAll();
 });
 
+async function syncScheduleFromJson(): Promise<void> {
+  try {
+    const res = await fetch('./schedule.json', { cache: 'no-cache' });
+    if (!res.ok) return;
+    const text = await res.text();
+    const result = parseAndSanitizeJSON(text);
+    if (result.lessons.length > 0) {
+      if (result.settings) store.setSettings(result.settings);
+      store.setLessons(result.lessons);
+    }
+  } catch (err) {
+    console.warn('Could not load ./schedule.json:', err);
+  }
+}
+
 // App startup
 initEventListeners();
 initSmartDate();
 renderAll();
+syncScheduleFromJson();
 setInterval(tick, 1000);
 
