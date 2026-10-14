@@ -1,0 +1,163 @@
+/* ==========================================================================
+       DESIGN SYSTEM TOKENS (from DESIGN-claude.md)
+       ========================================================================== */
+    :root {
+      /* Palette Tokens from DESIGN-claude.md */
+      --color-primary: #cc785c;
+      --color-primary-active: #a9583e;
+      --color-primary-disabled: #e6dfd8;
+      --color-ink: #141413;
+      --color-body-strong: #252523;
+      --color-body: #3d3d3a;
+      --color-muted: #6c6a64;
+      --color-muted-soft: #8e8b82;
+      --color-hairline: #e6dfd8;
+      --color-hairline-soft: #ebe6df;
+      --color-canvas: #faf9f5;
+      --color-surface-soft: #f5f0e8;
+      --color-surface-card: #efe9de;
+      --color-surface-cream-strong: #e8e0d2;
+      --color-surface-dark: #181715;
+      --color-surface-dark-elevated: #252320;
+      --color-surface-dark-soft: #1f1e1b;
+      --color-on-primary: #ffffff;
+      --color-on-dark: #faf9f5;
+      --color-on-dark-soft: #a09d96;
+      --color-accent-teal: #5db8a6;
+      --color-accent-amber: #e8a55a;
+      --color-success: #5db872;
+      --color-warning: #d4a017;
+      --color-error: #c64545;
+
+      /* Typography Stacks */
+      --font-serif: "Copernicus", "Tiempos Headline", "Cormorant Garamond", "Garamond", Georgia, serif;
+      --font-sans: "StyreneB", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+
+      /* Radii Tokens from DESIGN-claude.md */
+      --rounded-xs: 4px;
+      --rounded-sm: 6px;
+      --rounded-md: 8px;
+      --rounded-lg: 12px;
+      --rounded-xl: 16px;
+      --rounded-pill: 9999px;
+      --rounded-full: 9999px;
+
+      /* Spacing Tokens */
+      --space-xxs: 4px;
+      --space-xs: 8px;
+      --space-sm: 12px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-xxl: 48px;
+      --space-section: 96px;
+
+      /* Light Theme Surface Mapping */
+      --bg-base: var(--color-canvas);
+      --bg-surface: var(--color-canvas);
+      --bg-surface-elevated: var(--color-surface-soft);
+      --bg-card: var(--color-surface-card);
+      --bg-muted: var(--color-surface-soft);
+
+      --border-subtle: var(--color-hairline-soft);
+      --border-medium: var(--color-hairline);
+      --border-strong: var(--color-muted-soft);
+
+      --text-main: var(--color-ink);
+      --text-body: var(--color-body);
+      --text-secondary: var(--color-muted);
+      --text-muted: var(--color-muted-soft);
+      --text-inverse: var(--color-on-primary);
+
+      --accent: var(--color-primary);
+      --accent-hover: var(--color-primary-active);
+      --accent-light: var(--color-surface-soft);
+      --accent-border: var(--color-hairline);
+
+      --status-active: var(--color-success);
+
+      /* Subject Badges (Light) */
+      --badge-lecture-bg: #eaf3f1;
+      --badge-lecture-text: #245b51;
+      --badge-lecture-border: #c6e3dc;
+
+      --badge-practice-bg: #eaf4eb;
+      --badge-practice-text: #2b6136;
+      --badge-practice-border: #c3e2c9;
+
+      --badge-lab-bg: #fcf3e6;
+      --badge-lab-text: #8a5719;
+      --badge-lab-border: #f4ddbe;
+
+      --badge-sport-bg: #f8ece8;
+      --badge-sport-text: #96472f;
+      --badge-sport-border: #edd1c7;
+
+      --badge-other-bg: #eeeae2;
+      --badge-other-text: #59554e;
+      --badge-other-border: #ded9d0;
+
+      --shadow-sm: 0 1px 3px rgba(20, 20, 19, 0.05);
+      --shadow-md: 0 4px 12px rgba(20, 20, 19, 0.08);
+      --shadow-lg: 0 12px 32px rgba(20, 20, 19, 0.12);
+
+      --transition-standard: 0.16s ease;
+
+      --nav-h: 64px;
+      color-scheme: light;
+    }
+
+    /* Dark Theme Surface Mapping */
+    [data-theme="dark"] {
+      --bg-base: var(--color-surface-dark);
+      --bg-surface: var(--color-surface-dark-soft);
+      --bg-surface-elevated: var(--color-surface-dark-elevated);
+      --bg-card: var(--color-surface-dark-soft);
+      --bg-muted: var(--color-surface-dark-elevated);
+
+      --border-subtle: #252320;
+      --border-medium: #33302b;
+      --border-strong: #4f4b44;
+
+      --text-main: var(--color-on-dark);
+      --text-body: #d5d2cb;
+      --text-secondary: var(--color-on-dark-soft);
+      --text-muted: #78756f;
+      --text-inverse: var(--color-surface-dark);
+
+      --accent: var(--color-primary);
+      --accent-hover: var(--color-primary-active);
+      --accent-light: var(--color-surface-dark-elevated);
+      --accent-border: #443229;
+
+      /* Subject Badges (Dark) */
+      --badge-lecture-bg: #152724;
+      --badge-lecture-text: #7ad1c1;
+      --badge-lecture-border: #234740;
+
+      --badge-practice-bg: #172a1c;
+      --badge-practice-text: #7ec78e;
+      --badge-practice-border: #26472e;
+
+      --badge-lab-bg: #2f2312;
+      --badge-lab-text: #f0be7c;
+      --badge-lab-border: #523e20;
+
+      --badge-sport-bg: #321d17;
+      --badge-sport-text: #f0957d;
+      --badge-sport-border: #562e24;
+
+      --badge-other-bg: #262421;
+      --badge-other-text: #c2beba;
+      --badge-other-border: #3f3c37;
+
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);
+      --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.6);
+      color-scheme: dark;
+
+      /* Light beige surfaces are reused by badges, banner, export cards, etc. — keep them dark here */
+      --color-surface-soft: #252320;
+      --color-surface-card: #2a2825;
+    }

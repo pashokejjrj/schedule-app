@@ -1,0 +1,61 @@
+/* Base Reset & Setup */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+      scrollbar-gutter: stable;
+      scroll-padding-top: calc(var(--nav-h) + 12px);
+    }
+
+    body {
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--text-body);
+      background-color: var(--bg-base);
+      min-height: 100vh;
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: calc(72px + env(safe-area-inset-bottom));
+      transition: background-color var(--transition-standard), color var(--transition-standard);
+      overflow-x: hidden;
+      overscroll-behavior-x: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html.modal-open,
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    button, [role="button"], input, select, textarea, .category-tab-btn, .filter-chip-btn, .week-strip-card, .bell-pill {
+      touch-action: manipulation;
+    }
+
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+    }
+
+    [hidden] { display: none !important; }
+
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    .form-input:focus-visible, .form-select:focus-visible, .search-input:focus-visible, .date-picker-input:focus-visible {
+      outline: none;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
