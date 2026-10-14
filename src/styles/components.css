@@ -169,25 +169,33 @@
     }
 
     /* ==========================================================================
-       LIVE STATUS WIDGET (product-mockup-card-dark from DESIGN-claude.md)
+       LIVE STATUS WIDGET
        ========================================================================== */
     .live-widget-wrap {
       margin: 28px 0;
     }
 
     .live-mockup-card {
-      background: var(--color-surface-dark);
-      color: var(--color-on-dark);
-      border: 1px solid #282622;
+      background: var(--color-surface-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-medium);
       border-radius: var(--rounded-lg);
       padding: 22px 28px;
-      box-shadow: var(--shadow-md);
+      box-shadow: var(--shadow-sm);
       display: grid;
       grid-template-columns: auto 1fr auto;
       align-items: center;
       gap: 24px;
       position: relative;
       overflow: hidden;
+      transition: background var(--transition-standard), border-color var(--transition-standard);
+    }
+
+    [data-theme="dark"] .live-mockup-card {
+      background: var(--color-surface-dark-soft);
+      border-color: #33302b;
+      color: var(--color-on-dark);
+      box-shadow: var(--shadow-md);
     }
 
     .live-mockup-card::before {
@@ -197,6 +205,10 @@
       left: 0;
       bottom: 0;
       width: 4px;
+      background: var(--border-medium);
+    }
+
+    [data-theme="dark"] .live-mockup-card::before {
       background: #33302b;
     }
 
@@ -221,10 +233,16 @@
       text-transform: uppercase;
       padding: 4px 10px;
       border-radius: var(--rounded-pill);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-medium);
+      width: fit-content;
+    }
+
+    [data-theme="dark"] .live-terminal-badge {
       background: var(--color-surface-dark-elevated);
       color: var(--color-on-dark-soft);
-      border: 1px solid #33302b;
-      width: fit-content;
+      border-color: #33302b;
     }
 
     .live-mockup-card.status-ongoing .live-terminal-badge {
@@ -262,9 +280,13 @@
       font-size: 22px;
       font-weight: 500;
       letter-spacing: -0.3px;
-      color: var(--color-on-dark);
+      color: var(--text-main);
       line-height: 1.25;
       overflow-wrap: anywhere;
+    }
+
+    [data-theme="dark"] .live-title-display {
+      color: var(--color-on-dark);
     }
 
     .live-meta-row {
@@ -272,8 +294,12 @@
       align-items: center;
       gap: 16px;
       font-size: 14px;
-      color: var(--color-on-dark-soft);
+      color: var(--text-secondary);
       flex-wrap: wrap;
+    }
+
+    [data-theme="dark"] .live-meta-row {
+      color: var(--color-on-dark-soft);
     }
 
     .live-meta-item {
@@ -303,6 +329,10 @@
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 1px;
+      color: var(--text-muted);
+    }
+
+    [data-theme="dark"] .live-timer-caption {
       color: var(--color-on-dark-soft);
     }
 
@@ -321,10 +351,14 @@
     .live-progress-track {
       grid-column: 1 / -1;
       height: 3px;
-      background: var(--color-surface-dark-elevated);
+      background: var(--border-medium);
       border-radius: var(--rounded-pill);
       overflow: hidden;
       margin-top: 6px;
+    }
+
+    [data-theme="dark"] .live-progress-track {
+      background: var(--color-surface-dark-elevated);
     }
 
     .live-progress-fill {
