@@ -52,6 +52,9 @@ export function sanitizeLesson(raw: any): Lesson | null {
   if (!TIME_RE.test(raw.start) || !TIME_RE.test(raw.end)) return null;
 
   const typeClass = TYPE_CLASSES.includes(raw.typeClass) ? raw.typeClass : 'badge-other';
+  const dates = Array.isArray(raw.dates)
+    ? raw.dates.filter((dt: any) => typeof dt === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dt))
+    : undefined;
   return {
     uid: (typeof raw.uid === 'string' && /^[\w-]{1,64}$/.test(raw.uid)) ? raw.uid : newUid(),
     w: w as 1 | 2,
@@ -63,7 +66,8 @@ export function sanitizeLesson(raw: any): Lesson | null {
     end: raw.end.slice(0, 5),
     room: cleanStr(raw.room, 80),
     teacher: cleanStr(raw.teacher, 80),
-    note: cleanStr(raw.note, 200)
+    note: cleanStr(raw.note, 200),
+    ...(dates && dates.length > 0 ? { dates } : {})
   };
 }
 

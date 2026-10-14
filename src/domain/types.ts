@@ -27,6 +27,7 @@ export interface Lesson {
   room: string;
   teacher: string;
   note: string;
+  dates?: string[];
 }
 
 export interface Settings {

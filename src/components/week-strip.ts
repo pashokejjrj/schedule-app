@@ -33,7 +33,11 @@ export function renderWeekStrip(): void {
     const day = addDays(monday, i);
     const iso = formatDateISO(day);
     const dayLessons = i < 6
-      ? state.lessons.filter(l => l.w === state.activeWeek && l.d === (i + 1))
+      ? state.lessons.filter(l => {
+          if (l.w !== state.activeWeek || l.d !== (i + 1)) return false;
+          if (l.dates && l.dates.length > 0) return l.dates.includes(iso);
+          return true;
+        })
       : [];
 
     const dots = dayLessons.slice(0, 6)

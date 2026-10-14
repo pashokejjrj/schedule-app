@@ -79,16 +79,36 @@ export function generateICS(lessons: Lesson[], settings: Settings): { icsContent
 
   let exported = 0;
   lessons.forEach(l => {
-    let occurrence = addDays(baseMonday, (l.w === 1 ? 0 : 7) + (l.d - 1));
-    while (occurrence < semesterFirst) occurrence = addDays(occurrence, 14);
-    if (occurrence > semesterLast) return;
-
-    const datePart = formatDateISO(occurrence).replace(/-/g, '');
     const description = [
       `Тип: ${l.typeName || ''}`,
       l.teacher ? `Преподаватель: ${l.teacher}` : '',
       l.note ? `Примечание: ${l.note}` : ''
     ].filter(Boolean).join('\n');
+
+    if (l.dates && l.dates.length > 0) {
+      l.dates.forEach(dt => {
+        const dateObj = parseDateString(dt);
+        if (dateObj < semesterFirst || dateObj > semesterLast) return;
+        const datePart = dt.replace(/-/g, '');
+        lines.push('BEGIN:VEVENT');
+        lines.push(`UID:${l.uid}-${datePart}@claude-schedule.local`);
+        lines.push(`DTSTAMP:${stamp}`);
+        lines.push(`DTSTART:${datePart}T${l.start.replace(':', '')}00`);
+        lines.push(`DTEND:${datePart}T${l.end.replace(':', '')}00`);
+        lines.push(`SUMMARY:${escapeIcsText(l.title + (l.typeName ? ' (' + l.typeName + ')' : ''))}`);
+        if (l.room) lines.push(`LOCATION:${escapeIcsText(l.room)}`);
+        lines.push(`DESCRIPTION:${escapeIcsText(description)}`);
+        lines.push('END:VEVENT');
+        exported++;
+      });
+      return;
+    }
+
+    let occurrence = addDays(baseMonday, (l.w === 1 ? 0 : 7) + (l.d - 1));
+    while (occurrence < semesterFirst) occurrence = addDays(occurrence, 14);
+    if (occurrence > semesterLast) return;
+
+    const datePart = formatDateISO(occurrence).replace(/-/g, '');
 
     lines.push('BEGIN:VEVENT');
     lines.push(`UID:${l.uid}@claude-schedule.local`);

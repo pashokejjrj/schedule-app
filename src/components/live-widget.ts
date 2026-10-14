@@ -1,6 +1,6 @@
 import { store } from '../state/store';
 import { timeToMinutes, formatSeconds } from '../domain/time';
-import { isoWeekday, calculateParityForDate } from '../domain/parity';
+import { isoWeekday, calculateParityForDate, formatDateISO } from '../domain/parity';
 
 const ICON_ATTRS = 'width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
 const ICON_PIN = `<svg ${ICON_ATTRS}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`;
@@ -87,8 +87,13 @@ export function updateLiveWidget(): void {
 
   const state = store.getState();
   const parity = calculateParityForDate(now, state.settings.semesterStartMonday);
+  const todayStr = formatDateISO(now);
   const todayLessons = state.lessons
-    .filter(l => l.w === parity && l.d === dayOfWeek)
+    .filter(l => {
+      if (l.w !== parity || l.d !== dayOfWeek) return false;
+      if (l.dates && l.dates.length > 0) return l.dates.includes(todayStr);
+      return true;
+    })
     .sort((a, b) => timeToMinutes(a.start) - timeToMinutes(b.start));
 
   if (todayLessons.length === 0) {

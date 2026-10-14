@@ -272,6 +272,7 @@ export function initLessonModal(): void {
       return;
     }
 
+    const existingLesson = uid ? store.getState().lessons.find(l => l.uid === uid) : null;
     const lesson: Lesson = {
       uid: uid || generateUid(),
       w,
@@ -283,7 +284,8 @@ export function initLessonModal(): void {
       end,
       room: roomInput ? sanitizeString(roomInput.value, 80) : '',
       teacher: teacherInput ? sanitizeString(teacherInput.value, 80) : '',
-      note: noteInput ? sanitizeString(noteInput.value, 200) : ''
+      note: noteInput ? sanitizeString(noteInput.value, 200) : '',
+      ...(existingLesson?.dates ? { dates: existingLesson.dates } : {})
     };
 
     const isExisting = Boolean(uid);

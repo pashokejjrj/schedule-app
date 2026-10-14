@@ -87,4 +87,30 @@ describe('checkCollision', () => {
     };
     expect(checkCollision(adjacent, existing)).toHaveLength(0);
   });
+
+  it('allows lessons at same time if their specific dates do not overlap', () => {
+    const electro: Lesson = {
+      uid: 'el-1',
+      w: 2,
+      d: 2,
+      title: 'Электротехника',
+      typeClass: 'badge-lab',
+      typeName: 'Лабораторная',
+      start: '08:30',
+      end: '11:40',
+      dates: ['2026-09-22', '2026-10-20']
+    };
+    const physics: Lesson = {
+      uid: 'ph-1',
+      w: 2,
+      d: 2,
+      title: 'Физика',
+      typeClass: 'badge-practice',
+      typeName: 'Практика',
+      start: '08:30',
+      end: '11:40',
+      dates: ['2026-09-08', '2026-10-06']
+    };
+    expect(checkCollision(physics, [electro])).toHaveLength(0);
+  });
 });

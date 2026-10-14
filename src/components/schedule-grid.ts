@@ -119,9 +119,14 @@ export function renderScheduleGrid(): void {
   const html: string[] = [];
   DAYS_MAP.forEach(dayInfo => {
     const dayDate = addDays(monday, dayInfo.id - 1);
-    const isToday = formatDateISO(dayDate) === todayStr;
+    const dayDateStr = formatDateISO(dayDate);
+    const isToday = dayDateStr === todayStr;
     const dayLessons = state.lessons
-      .filter(l => l.w === state.activeWeek && l.d === dayInfo.id)
+      .filter(l => {
+        if (l.w !== state.activeWeek || l.d !== dayInfo.id) return false;
+        if (l.dates && l.dates.length > 0) return l.dates.includes(dayDateStr);
+        return true;
+      })
       .sort((a, b) => timeToMinutes(a.start) - timeToMinutes(b.start));
 
     const classes = ['day-card'];

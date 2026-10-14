@@ -86,7 +86,12 @@ function initSmartDate(): void {
     bannerText = 'Сегодня выходной. Показываю расписание на понедельник.';
   } else {
     const parity = calculateParityForDate(now, state.settings.semesterStartMonday);
-    const todayLessons = state.lessons.filter(l => l.w === parity && l.d === todayIso);
+    const todayStr = formatDateISO(now);
+    const todayLessons = state.lessons.filter(l => {
+      if (l.w !== parity || l.d !== todayIso) return false;
+      if (l.dates && l.dates.length > 0) return l.dates.includes(todayStr);
+      return true;
+    });
     if (todayLessons.length > 0) {
       const nowMinutes = now.getHours() * 60 + now.getMinutes();
       const lastLessonEnd = Math.max(...todayLessons.map(l => timeToMinutes(l.end)));
