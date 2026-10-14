@@ -1,7 +1,8 @@
 import { store } from '../state/store';
 import { exportICS } from '../services/ics-export';
 import { exportJSON, importJSONFile } from '../services/json-transfer';
-import { showConfirmDialog } from './modal';
+import { showConfirmDialog, closeModal } from './modal';
+import { renderPrintSchedule } from './print-view';
 import { showToast } from './toast';
 
 export function initDataActions(): void {
