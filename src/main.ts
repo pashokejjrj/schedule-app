@@ -1,60 +1,348 @@
-import './style.css'
-import heroImg from './assets/hero.png'
-import typescriptLogo from './assets/typescript.svg'
-import viteLogo from './assets/vite.svg'
-import { setupCounter } from './counter.ts'
+import './styles/tokens.css';
+import './styles/reset.css';
+import './styles/components.css';
+import './styles/print.css';
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-<section id="center">
-  <div class="hero">
-    <img src="${heroImg}" class="base" width="170" height="179">
-    <img src="${typescriptLogo}" class="framework" alt="TypeScript logo"/>
-    <img src="${viteLogo}" class="vite" alt="Vite logo" />
-  </div>
-  <div>
-    <h1>Get started</h1>
-    <p>Edit <code>src/main.ts</code> and save to test <code>HMR</code></p>
-  </div>
-  <button id="counter" type="button" class="counter"></button>
-</section>
+import type { ViewMode } from './state/store';
+import { THEME_COLORS, WEEKDAYS_ACC } from './domain/types';
+import { addDays, calculateParityForDate, formatDateISO, isoWeekday, parseDateString, startOfDay } from './domain/parity';
+import { timeToMinutes } from './domain/time';
+import { store } from './state/store';
 
-<div class="ticks"></div>
+import { showToast } from './components/toast';
+import { openModal, closeModal, initModals, showConfirmDialog } from './components/modal';
+import { updateLiveWidget } from './components/live-widget';
+import { renderWeekStrip } from './components/week-strip';
+import { renderScheduleGrid, initScheduleGrid, scrollToActiveDay } from './components/schedule-grid';
+import { renderPrintSchedule } from './components/print-view';
+import { openLessonModal, initLessonModal, deleteLessonWithUndo } from './components/modal-lesson';
+import { openSettingsModal, initSettingsModal } from './components/modal-settings';
+import { initDataActions } from './components/actions';
 
-<section id="next-steps">
-  <div id="docs">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#documentation-icon"></use></svg>
-    <h2>Documentation</h2>
-    <p>Your questions, answered</p>
-    <ul>
-      <li>
-        <a href="https://vite.dev/" target="_blank">
-          <img class="logo" src="${viteLogo}" alt="" />
-          Explore Vite
-        </a>
-      </li>
-      <li>
-        <a href="https://www.typescriptlang.org" target="_blank">
-          <img class="button-icon" src="${typescriptLogo}" alt="">
-          Learn more
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div id="social">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#social-icon"></use></svg>
-    <h2>Connect with us</h2>
-    <p>Join the Vite community</p>
-    <ul>
-      <li><a href="https://github.com/vitejs/vite" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#github-icon"></use></svg>GitHub</a></li>
-      <li><a href="https://chat.vite.dev/" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#discord-icon"></use></svg>Discord</a></li>
-      <li><a href="https://x.com/vite_js" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#x-icon"></use></svg>X.com</a></li>
-      <li><a href="https://bsky.app/profile/vite.dev" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#bluesky-icon"></use></svg>Bluesky</a></li>
-    </ul>
-  </div>
-</section>
+function $(id: string): HTMLElement | null {
+  return document.getElementById(id);
+}
 
-<div class="ticks"></div>
-<section id="spacer"></section>
-`
+function setText(el: HTMLElement | null, text: string | undefined): void {
+  if (el && el.textContent !== text) el.textContent = text || '';
+}
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+function renderHeader(): void {
+  const { settings } = store.getState();
+  setText($('headerGroupName'), settings.groupName);
+  setText($('printGroupName'), `Расписание занятий — ${settings.groupName}`);
+  setText($('printGroupSubtitle'), settings.groupSubtitle);
+  document.title = `Расписание ${settings.groupName}`;
+}
+
+function renderWeekTabs(): void {
+  const { activeWeek, activeDate } = store.getState();
+  [1, 2].forEach(n => {
+    const tab = $('tabWeek' + n);
+    if (tab) {
+      const isActive = activeWeek === n;
+      tab.classList.toggle('active', isActive);
+      tab.setAttribute('aria-pressed', String(isActive));
+    }
+  });
+  const dateInput = $('datePickerInput') as HTMLInputElement | null;
+  if (dateInput) {
+    dateInput.value = formatDateISO(activeDate);
+  }
+}
+
+function renderViewToggle(): void {
+  const { viewMode } = store.getState();
+  document.querySelectorAll<HTMLElement>('#viewToggle .view-toggle-btn').forEach(btn => {
+    const isActive = btn.getAttribute('data-view') === viewMode;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-pressed', String(isActive));
+  });
+}
+
+function applyTheme(theme: 'light' | 'dark'): void {
+  document.documentElement.setAttribute('data-theme', theme);
+  const meta = $('metaThemeColor');
+  if (meta) meta.setAttribute('content', THEME_COLORS[theme] || (theme === 'dark' ? '#181715' : '#faf9f5'));
+}
+
+function renderAll(): void {
+  const state = store.getState();
+  applyTheme(state.theme);
+  renderHeader();
+  renderWeekTabs();
+  renderViewToggle();
+  renderWeekStrip();
+  renderScheduleGrid();
+  renderPrintSchedule();
+  updateLiveWidget();
+}
+
+function initSmartDate(): void {
+  const now = new Date();
+  const todayIso = isoWeekday(now);
+  let activeDate = startOfDay(now);
+  let bannerText = '';
+
+  const state = store.getState();
+  if (todayIso === 7) {
+    activeDate = addDays(activeDate, 1);
+    bannerText = 'Сегодня выходной. Показываю расписание на понедельник.';
+  } else {
+    const parity = calculateParityForDate(now, state.settings.semesterStartMonday);
+    const todayLessons = state.lessons.filter(l => l.w === parity && l.d === todayIso);
+    if (todayLessons.length > 0) {
+      const nowMinutes = now.getHours() * 60 + now.getMinutes();
+      const lastLessonEnd = Math.max(...todayLessons.map(l => timeToMinutes(l.end)));
+      if (nowMinutes >= lastLessonEnd) {
+        activeDate = addDays(activeDate, todayIso === 6 ? 2 : 1);
+        bannerText = `Сегодняшние пары закончились. Показываю расписание на ${WEEKDAYS_ACC[isoWeekday(activeDate) - 1]}.`;
+      }
+    }
+  }
+
+  store.goToDate(activeDate, false);
+
+  if (bannerText) {
+    const msg = $('smartBannerMsg');
+    const banner = $('smartBanner');
+    if (msg) msg.textContent = bannerText;
+    if (banner) banner.style.display = 'flex';
+  }
+}
+
+function initEventListeners(): void {
+  initModals();
+  initLessonModal();
+  initSettingsModal();
+  initDataActions();
+
+  initScheduleGrid({
+    onEditLesson: (uid) => openLessonModal(uid),
+    onDeleteLesson: (uid) => {
+      showConfirmDialog(
+        'Удалить пару?',
+        'Вы уверены, что хотите удалить это занятие?',
+        () => deleteLessonWithUndo(uid)
+      );
+    },
+    onAddLesson: (day) => {
+      const state = store.getState();
+      openLessonModal(null, state.activeWeek, day);
+    }
+  });
+
+  $('btnHeaderAddLesson')?.addEventListener('click', () => {
+    const state = store.getState();
+    openLessonModal(null, state.activeWeek, isoWeekday(state.activeDate));
+  });
+
+  $('btnMobileFabAdd')?.addEventListener('click', () => {
+    const state = store.getState();
+    openLessonModal(null, state.activeWeek, isoWeekday(state.activeDate));
+  });
+
+  $('btnOpenSettings')?.addEventListener('click', openSettingsModal);
+  $('btnOpenExportImport')?.addEventListener('click', () => openModal('modalExportImport'));
+
+  $('btnToggleTheme')?.addEventListener('click', () => {
+    const next = store.toggleTheme();
+    showToast(next === 'dark' ? 'Включена тёмная тема' : 'Включена светлая тема');
+  });
+
+  $('btnOpenMenu')?.addEventListener('click', () => openModal('modalMenu'));
+
+  $('modalMenu')?.addEventListener('click', (e) => {
+    const item = (e.target as HTMLElement).closest('[data-menu-action]');
+    if (!item) return;
+    closeModal('modalMenu');
+    switch (item.getAttribute('data-menu-action')) {
+      case 'settings':
+        openSettingsModal();
+        break;
+      case 'export':
+        openModal('modalExportImport');
+        break;
+      case 'demo':
+        showConfirmDialog(
+          'Загрузить демо-данные',
+          'Текущее расписание будет заменено тестовым набором для ИВТ-24-1. Продолжить?',
+          () => {
+            store.fillDemo();
+            showToast('Загружено демо-расписание ИВТ-24-1');
+          },
+          'Загрузить',
+          false
+        );
+        break;
+      case 'clear':
+        showConfirmDialog(
+          'Очистить расписание',
+          'Удалить все пары из расписания? Настройки группы и звонков сохранятся.',
+          () => {
+            store.clearAll();
+            showToast('Расписание полностью очищено');
+          },
+          'Очистить',
+          true
+        );
+        break;
+    }
+  });
+
+  // Week parity tabs
+  [1, 2].forEach(n => {
+    $('tabWeek' + n)?.addEventListener('click', () => {
+      store.showWeek(n as 1 | 2);
+    });
+  });
+
+  // Week navigation & jumps
+  $('btnPrevWeek')?.addEventListener('click', () => {
+    store.goToDate(addDays(store.getState().activeDate, -7));
+  });
+
+  $('btnNextWeek')?.addEventListener('click', () => {
+    store.goToDate(addDays(store.getState().activeDate, 7));
+  });
+
+  $('btnJumpToday')?.addEventListener('click', () => {
+    const banner = $('smartBanner');
+    if (banner) banner.style.display = 'none';
+    store.goToDate(new Date(), true);
+    setTimeout(scrollToActiveDay, 50);
+  });
+
+  $('btnJumpTomorrow')?.addEventListener('click', () => {
+    store.goToDate(addDays(new Date(), 1), true);
+    setTimeout(scrollToActiveDay, 50);
+  });
+
+  $('btnSmartShowToday')?.addEventListener('click', () => {
+    const banner = $('smartBanner');
+    if (banner) banner.style.display = 'none';
+    store.goToDate(new Date(), true);
+    setTimeout(scrollToActiveDay, 50);
+  });
+
+  $('btnSmartDismiss')?.addEventListener('click', () => {
+    const banner = $('smartBanner');
+    if (banner) banner.style.display = 'none';
+  });
+
+  $('datePickerInput')?.addEventListener('change', (e) => {
+    const val = (e.target as HTMLInputElement).value;
+    if (val) {
+      store.goToDate(parseDateString(val), true);
+      setTimeout(scrollToActiveDay, 50);
+    }
+  });
+
+  // View toggle
+  document.querySelectorAll<HTMLElement>('#viewToggle .view-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = btn.getAttribute('data-view') as ViewMode;
+      if (mode) store.setViewMode(mode);
+    });
+  });
+
+  // Search input & clear
+  const searchInput = $('searchInput') as HTMLInputElement | null;
+  const searchClearBtn = $('searchClearBtn');
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      store.setSearchQuery(searchInput.value);
+      if (searchClearBtn) {
+        searchClearBtn.style.display = searchInput.value ? 'flex' : 'none';
+      }
+    });
+  }
+
+  if (searchClearBtn && searchInput) {
+    searchClearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      store.setSearchQuery('');
+      searchClearBtn.style.display = 'none';
+      searchInput.focus();
+    });
+  }
+
+  // Filter chips
+  const filterChips = $('filterChips');
+  if (filterChips) {
+    filterChips.addEventListener('click', (e) => {
+      const chip = (e.target as HTMLElement).closest('.filter-chip-btn');
+      if (!chip) return;
+      document.querySelectorAll('#filterChips .filter-chip-btn').forEach(c => {
+        c.classList.remove('active');
+        c.setAttribute('aria-pressed', 'false');
+      });
+      chip.classList.add('active');
+      chip.setAttribute('aria-pressed', 'true');
+      const type = chip.getAttribute('data-type') || 'all';
+      store.setActiveTypeFilter(type);
+    });
+  }
+
+  // Week strip click delegation
+  $('weekStrip')?.addEventListener('click', (e) => {
+    const card = (e.target as HTMLElement).closest('.week-strip-card');
+    if (card) {
+      const dateStr = card.getAttribute('data-date');
+      if (dateStr) {
+        store.goToDate(parseDateString(dateStr), true);
+        setTimeout(scrollToActiveDay, 50);
+      }
+    }
+  });
+
+  // ResizeObserver for top nav height
+  const navEl = document.querySelector('.top-nav') as HTMLElement | null;
+  if (navEl && 'ResizeObserver' in window) {
+    new ResizeObserver(() => {
+      document.documentElement.style.setProperty('--nav-h', navEl.offsetHeight + 'px');
+    }).observe(navEl);
+  }
+
+  // OS theme change listener
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    const saved = localStorage.getItem('schedule_theme');
+    if (!saved || saved === 'auto') {
+      store.setTheme(e.matches ? 'dark' : 'light', false);
+    }
+  });
+}
+
+function minuteKey(): string {
+  const now = new Date();
+  return formatDateISO(now) + ' ' + now.getHours() + ':' + now.getMinutes();
+}
+
+let lastMinute = minuteKey();
+
+function tick(): void {
+  if (document.hidden) return;
+  updateLiveWidget();
+  const currentMinute = minuteKey();
+  if (currentMinute !== lastMinute) {
+    lastMinute = currentMinute;
+    renderWeekStrip();
+    renderScheduleGrid();
+  }
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) tick();
+});
+
+// Subscribe to store updates
+store.subscribe(() => {
+  renderAll();
+});
+
+// App startup
+initEventListeners();
+initSmartDate();
+renderAll();
+setInterval(tick, 1000);
+

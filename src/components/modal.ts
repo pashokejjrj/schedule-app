@@ -35,8 +35,8 @@ export function showConfirmDialog(
   confirmLabel = 'Удалить',
   isDestructive = true
 ): void {
-  const titleEl = document.getElementById('modalConfirmTitle');
-  const msgEl = document.getElementById('modalConfirmMessage');
+  const titleEl = document.getElementById('confirmTitle') || document.getElementById('modalConfirmTitle');
+  const msgEl = document.getElementById('confirmMessage') || document.getElementById('modalConfirmMessage');
   const btnConfirm = document.getElementById('btnConfirmAction') as HTMLButtonElement | null;
 
   if (titleEl) titleEl.textContent = title;
